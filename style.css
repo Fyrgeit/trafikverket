@@ -1,3 +1,15 @@
+* {
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+}
+
+body {
+    display: flex;
+    gap: 1rem;
+    max-height: 100%;
+}
+
 svg {
     background-color: black;
     max-height: 97vh;
@@ -13,4 +25,16 @@ svg {
 
 .border {
     fill: #888;
+}
+
+#tiles {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+
+    background-color: lightblue;
+}
+
+img {
+    height: calc(100svh / 4);
 }

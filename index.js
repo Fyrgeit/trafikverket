@@ -1,74 +1,103 @@
-import sweden from './sweden.json' assert { type: 'json' };
+import { get } from './trafikverket.js';
 
-const key = '30a5b65bd4df4f788c83ac78f46dd5d8';
-const url = 'https://api.trafikinfo.trafikverket.se/v2/data.json';
+//document.querySelector('svg').addEventListener('click', get);
 
-const get = async () => {
-    const svg = document.querySelector('svg');
+//get();
 
-    svg.innerHTML = '';
+function appendOrm(element, zoom, x, y) {
+    const ormUrl = `https://a.tiles.openrailwaymap.org/standard/${zoom}/${x}/${y}.png`;
 
-    //Draw borders
-    sweden.forEach((landmass) => {
-        const c = document.createElementNS(
-            'http://www.w3.org/2000/svg',
-            'polygon'
-        );
+    const imgEl = document.createElement('img');
+    imgEl.src = ormUrl;
 
-        c.setAttribute(
-            'points',
-            landmass[0].map((l) => l[0] + ', ' + (-l[1] + 100)).join(' ')
-        );
+    element.append(imgEl);
+}
 
-        c.classList.add('border');
+function draw() {
+    tilesEl.innerHTML = '';
 
-        svg.append(c);
-    });
+    appendOrm(tilesEl, z, x - 2, y - 2);
+    appendOrm(tilesEl, z, x - 1, y - 2);
+    appendOrm(tilesEl, z, x - 0, y - 2);
+    appendOrm(tilesEl, z, x + 1, y - 2);
+    appendOrm(tilesEl, z, x - 2, y - 1);
+    appendOrm(tilesEl, z, x - 1, y - 1);
+    appendOrm(tilesEl, z, x - 0, y - 1);
+    appendOrm(tilesEl, z, x + 1, y - 1);
+    appendOrm(tilesEl, z, x - 2, y - 0);
+    appendOrm(tilesEl, z, x - 1, y - 0);
+    appendOrm(tilesEl, z, x - 0, y - 0);
+    appendOrm(tilesEl, z, x + 1, y - 0);
+    appendOrm(tilesEl, z, x - 2, y + 1);
+    appendOrm(tilesEl, z, x - 1, y + 1);
+    appendOrm(tilesEl, z, x - 0, y + 1);
+    appendOrm(tilesEl, z, x + 1, y + 1);
 
-    const response = await fetch(url, {
-        method: 'post',
-        headers: {
-            'Content-Type': 'text/xml',
-        },
-        body: `<REQUEST>
-        <LOGIN authenticationkey="${key}"/>
-        <QUERY objecttype="TrainPosition" namespace="järnväg.trafikinfo" schemaversion="1.1" limit="1000">
-        <FILTER>
-        <GT name="TimeStamp" value="$dateadd(-0.00:05:00)" />
-        </FILTER>
-        </QUERY>
-        </REQUEST>`,
-    });
+    document.getElementById('info').innerText = `z: ${z}, x: ${x}, y: ${y},`;
+}
 
-    const data = await response.json();
-    const trains = data.RESPONSE.RESULT[0].TrainPosition;
+function mup() {
+    y--;
+    draw();
+}
+function mdown() {
+    y++;
+    draw();
+}
+function mleft() {
+    x--;
+    draw();
+}
+function mright() {
+    x++;
+    draw();
+}
+function zin() {
+    z++;
+    x *= 2;
+    y *= 2;
+    draw();
+}
+function zout() {
+    z--;
+    x = Math.round(x / 2);
+    y = Math.round(y / 2);
+    draw();
+}
 
-    const final = trains.map((t) => {
-        let pos = t.Position.WGS84.slice(7, -1).split(' ');
-
-        return {
-            number: t.Train.OperationalTrainNumber,
-            lat: Number(pos[0]),
-            lon: Number(pos[1]),
-            time: new Date(t.TimeStamp),
-        };
-    });
-
-    final.forEach((t) => {
-        const c = document.createElementNS(
-            'http://www.w3.org/2000/svg',
-            'circle'
-        );
-
-        c.setAttribute('cx', t.lat + 'px');
-        c.setAttribute('cy', -t.lon + 100 + 'px');
-        c.setAttribute('r', '0.1px');
-        c.classList.add('train');
-
-        svg.append(c);
-    });
+document.getElementById('up').addEventListener('click', mup);
+document.getElementById('down').addEventListener('click', mdown);
+document.getElementById('left').addEventListener('click', mleft);
+document.getElementById('right').addEventListener('click', mright);
+document.getElementById('in').addEventListener('click', zin);
+document.getElementById('out').addEventListener('click', zout);
+document.onkeydown = (e) => {
+    switch (e.key) {
+        case 'ArrowUp':
+            mup();
+            break;
+        case 'ArrowDown':
+            mdown();
+            break;
+        case 'ArrowLeft':
+            mleft();
+            break;
+        case 'ArrowRight':
+            mright();
+            break;
+        case '+':
+            zin();
+            break;
+        case '-':
+            zout();
+            break;
+        default:
+            break;
+    }
 };
 
-document.querySelector('svg').addEventListener('click', get);
+const tilesEl = document.getElementById('tiles');
 
-get();
+let [z, x, y] = [4, 9, 5];
+
+draw(tilesEl, z, x, y);
