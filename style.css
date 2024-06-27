@@ -1,0 +1,16 @@
+svg {
+    background-color: black;
+    max-height: 97vh;
+}
+
+.train {
+    fill: #fff;
+}
+
+.train:hover {
+    fill: #4cf;
+}
+
+.border {
+    fill: #888;
+}
