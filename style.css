@@ -32,9 +32,22 @@ svg {
     grid-template-columns: repeat(4, 1fr);
     grid-template-rows: repeat(4, 1fr);
 
-    background-color: lightblue;
+    background-color: rgb(190, 210, 216);
+    height: 100svh;
+    width: 100svh;
 }
 
 img {
     height: calc(100svh / 4);
+}
+
+#pointers {
+    position: absolute;
+}
+
+.pointer {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background-color: black;
 }

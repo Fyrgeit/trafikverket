@@ -1,30 +1,7 @@
-import sweden from './sweden.js';
-
 const key = '30a5b65bd4df4f788c83ac78f46dd5d8';
 const url = 'https://api.trafikinfo.trafikverket.se/v2/data.json';
 
-export const get = async () => {
-    const svg = document.querySelector('svg');
-
-    svg.innerHTML = '';
-
-    //Draw borders
-    sweden.forEach((landmass) => {
-        const c = document.createElementNS(
-            'http://www.w3.org/2000/svg',
-            'polygon'
-        );
-
-        c.setAttribute(
-            'points',
-            landmass[0].map((l) => l[0] + ', ' + (-l[1] + 100)).join(' ')
-        );
-
-        c.classList.add('border');
-
-        svg.append(c);
-    });
-
+export const getTrains = async () => {
     const response = await fetch(url, {
         method: 'post',
         headers: {
@@ -48,23 +25,11 @@ export const get = async () => {
 
         return {
             number: t.Train.OperationalTrainNumber,
-            lat: Number(pos[0]),
-            lon: Number(pos[1]),
+            lat: Number(pos[1]),
+            lon: Number(pos[0]),
             time: new Date(t.TimeStamp),
         };
     });
 
-    final.forEach((t) => {
-        const c = document.createElementNS(
-            'http://www.w3.org/2000/svg',
-            'circle'
-        );
-
-        c.setAttribute('cx', t.lat + 'px');
-        c.setAttribute('cy', -t.lon + 100 + 'px');
-        c.setAttribute('r', '0.1px');
-        c.classList.add('train');
-
-        svg.append(c);
-    });
+    return final;
 };
